@@ -6,6 +6,7 @@
   <title>TinyMCE GPT Playground</title>
   <script src="https://cdn.tiny.cloud/1/<%= apiKey %>/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
   <script src="tinygpt-plugin/plugin.js"></script>
+  <script src="tinygpt-plugin/tinychat-plugin.js"></script>
   <style>
     body {
       margin: 0;
@@ -30,12 +31,32 @@
       font-size: 16px;
       font-family: monospace;
     }
+button.button-primary {
+  background-color: #008CBA !important;
+  color: #fff !important;
+  padding: 6px 12px !important;
+  border: none !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+}
+
+button.button-secondary {
+  background-color: #f2f2f2 !important;
+  color: #000 !important;
+  padding: 6px 12px !important;
+  border: none !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  margin-left: 6px !important;
+}
+
+
   </style>
   <script>
     tinymce.init({
       selector: '#mytextarea',
-      plugins: 'code tinygpt autoresize link fullscreen',
-      toolbar: 'bold italic underline',
+      plugins: 'code tinygpt autoresize link fullscreen chatplugin',
+      toolbar: 'bold italic underline chatplugin',
       menubar: true, // Hide the menu bar
       autoresize_bottom_margin: 20, // Add 20 pixels of space at the bottom of the editor
       toolbar_sticky: true, // Make the toolbar float at the top of the viewport

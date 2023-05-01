@@ -1,0 +1,15 @@
+Write a TinyMCE plugin for interacting with the OpenAI ChatGPT APIs. 
+
+It should
+- add a toolbar button that opens a sidebar
+- the sidebar should look like a chatbot UI
+
+The Chatbot UI should have everything that a typical ChatGPT-style chatbot should have. 
+
+It should
+- ask for user input with a send button
+- send the question to the ChatGPT API
+- show the ChatGPT response in the UI
+- next to each ChatGPT response there should be a button to insert it into the editor at the current cursor location
+- enable the user to post a follow-up question
+- there should be a button to clear the conversation
