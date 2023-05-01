@@ -55,7 +55,7 @@ app.post('/chatgpt', async (req, res) => {
     const completion = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [
-        { role: 'system', content: 'You are a helpful assistant that helps write content. Return the answers in HTML format with heading, paragrpah and line break tags only where appropriate. Surround the answer with a <div> tag with the class "answer". Your commentary, if any, should be outside the <div> tag.' },
+        { role: 'system', content: 'You are a helpful assistant that helps write content. Return the answers to questions in HTML format with the appropriate heading, paragraph, and line break tags when needed.' },
         { role: 'user', content: `${prompt}` }
       ],
     });
