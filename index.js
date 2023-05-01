@@ -47,31 +47,26 @@ async function generateImage(promptText, size) {
 }
 
 // this allows a direct call of the OpenAI API to generate text that will be inserted into the editor
-app.post("/chatgpt", async (req, res) => {
+app.post('/chatgpt', async (req, res) => {
   const { message } = req.body;
   const prompt = `${message}`;
-  console.log("Prompt: " + prompt);
+  console.log(`Prompt: ${prompt}`);
   try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/engines/text-davinci-003/completions",
-      {
-        prompt: prompt,
-        max_tokens: 500,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${openaiApiKey}`,
-        },
-      }
-    );
-
-    res.send({ response: response.data.choices[0].text.trim() });
+    const completion = await openai.createChatCompletion({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'You are a helpful assistant that helps write content. Return the answers in HTML format with heading, paragrpah and line break tags only where appropriate. Surround the answer with a <div> tag with the class "answer". Your commentary, if any, should be outside the <div> tag.' },
+        { role: 'user', content: `${prompt}` }
+      ],
+    });
+    console.log(completion.data.choices[0].message);
+    res.send({ response: completion.data.choices[0].message.content });
   } catch (error) {
-    console.error("Error:", error.response.data); // Log the error details
+    console.error("Error:", error.message); // Log the error details
     res.status(500).send({ error: error.message });
   }
 });
+
 
 // this allows a direct call of the OpenAI API to generate text that will be inserted into the editor
 app.post("/generate-content", async (req, res) => {

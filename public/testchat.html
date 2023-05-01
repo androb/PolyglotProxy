@@ -8,6 +8,46 @@
     <style>
       body {
         height: 100%;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
+      .chat-container {
+        width: 100%;
+        height: 100%;
+        margin: 10px;
+      }
+      .chat-container.chat-messages {
+        margin:10px;
+      }
+      .chat-container.chat-message {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+       
+      }
+      .chat-message-user {
+         margin:10px;
+        font-size: 14px;
+        color: #666;
+      }
+      .chat-message-bot {
+         margin:10px;
+        font-size: 14px;
+        color: #333;
+      }
+      .chat-insert-btn{
+        margin:0px 0px 0px 10px;
+      }
+     .chat-container.chat-controls {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       justify-content: center;
+     }
+      .chat-input {
+        width: 80%;
+        height: 100%;
+        margin: 10px;
       }
     </style>
   </head>
@@ -36,7 +76,7 @@
         const messageEl = document.createElement("div");
         messageEl.classList.add("chat-message");
         messageEl.classList.add(`chat-message-${sender}`);
-        messageEl.textContent = text;
+        messageEl.innerHTML = text;
         chatMessages.appendChild(messageEl);
 
         if (sender === "bot") {
