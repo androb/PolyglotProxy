@@ -47,6 +47,33 @@ async function generateImage(promptText, size) {
   return imageURL;
 }
 
+// this allows a direct call of the OpenAI API to generate text that will be inserted into the editor
+app.post('/chatgpt', async (req, res) => {
+
+  const { message } = req.body;
+  const prompt = `${message}`;
+  console.log('Prompt: ' + prompt);
+  try {
+    const response = await axios.post(
+      'https://api.openai.com/v1/engines/text-davinci-003/completions',
+      {
+        prompt: prompt,
+        max_tokens: 500,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openaiApiKey}`,
+        },
+      }
+    );
+
+    res.send({ response: response.data.choices[0].text.trim() });
+  } catch (error) {
+    console.error('Error:', error.response.data); // Log the error details
+    res.status(500).send({ error: error.message });
+  }
+});
 
 // this allows a direct call of the OpenAI API to generate text that will be inserted into the editor
 app.post('/generate-content', async (req, res) => {

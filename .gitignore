@@ -1,7 +1,7 @@
 # Node.js build artifacts
 node_modules/
 build/
-server/package-lock.json
+package-lock.json
 
 # Logs
 logs
@@ -21,3 +21,8 @@ logs
 # Other files
 .DS_Store
 Thumbs.db
+
+# replit
+.replit
+.git
+__pycache__

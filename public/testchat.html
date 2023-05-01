@@ -14,7 +14,6 @@
 <body>
 
   <div class="chat-container">
-    <h1 class="chat-title">ChatGPT</h1>
     <div class="chat-body">
       <div class="chat-messages" id="chat-messages"></div>
       <div class="chat-controls">
@@ -48,7 +47,7 @@
         messageEl.appendChild(insertBtn);
       }
     }
-
+    
     const sendMessage = async (message) => {
       addMessage(message, 'user');
       const response = await fetch('/chatgpt', {
