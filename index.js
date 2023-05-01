@@ -1,11 +1,11 @@
-const express = require('express');
-const cors = require('cors');  // Import the cors package
-const bodyParser = require('body-parser');
-const axios = require('axios');
-const path = require('path');
+const express = require("express");
+const cors = require("cors"); // Import the cors package
+const bodyParser = require("body-parser");
+const axios = require("axios");
+const path = require("path");
 const app = express();
 const port = 3002;
-require('dotenv').config();
+require("dotenv").config();
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
 const { Configuration, OpenAIApi } = require("openai");
@@ -15,22 +15,21 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-
 // Use the cors middleware to allow cross-domain requests
-app.use(cors(
-  {
-    origin: 'http://localhost:3002, https://polyglotproxy.andrewroberts24.repl.co, https://polyglotproxy.replit.app/',
-  }
-));
+app.use(
+  cors({
+    origin:
+      "http://localhost:3002, https://polyglotproxy.andrewroberts24.repl.co, https://polyglotproxy.replit.app/",
+  })
+);
 
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, '/public')));
-app.set('views', path.join(__dirname, '/views'));
-app.set('view engine', 'ejs');
-
+app.use(express.static(path.join(__dirname, "/public")));
+app.set("views", path.join(__dirname, "/views"));
+app.set("view engine", "ejs");
 
 // an endpoint to generate an image given a prompt passed to it. It should use the Dalle-2 API
-app.get('/api/image', async (req, res) => {
+app.get("/api/image", async (req, res) => {
   const { prompt } = req.query;
   const imageURL = await generateImage(prompt);
   //res.send(`<figure class="image"><img src="${imageURL}" alt="${prompt}" width="100%" style="height:400px;width:100%;object-fit: cover;" align="center" /><figcaption>"${prompt}" by DALL·E 2</figcaption></figure>`);
@@ -48,64 +47,60 @@ async function generateImage(promptText, size) {
 }
 
 // this allows a direct call of the OpenAI API to generate text that will be inserted into the editor
-app.post('/chatgpt', async (req, res) => {
-
+app.post("/chatgpt", async (req, res) => {
   const { message } = req.body;
   const prompt = `${message}`;
-  console.log('Prompt: ' + prompt);
+  console.log("Prompt: " + prompt);
   try {
     const response = await axios.post(
-      'https://api.openai.com/v1/engines/text-davinci-003/completions',
+      "https://api.openai.com/v1/engines/text-davinci-003/completions",
       {
         prompt: prompt,
         max_tokens: 500,
       },
       {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openaiApiKey}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiApiKey}`,
         },
       }
     );
 
     res.send({ response: response.data.choices[0].text.trim() });
   } catch (error) {
-    console.error('Error:', error.response.data); // Log the error details
+    console.error("Error:", error.response.data); // Log the error details
     res.status(500).send({ error: error.message });
   }
 });
 
 // this allows a direct call of the OpenAI API to generate text that will be inserted into the editor
-app.post('/generate-content', async (req, res) => {
-
+app.post("/generate-content", async (req, res) => {
   const { topic, tokens } = req.body;
   const prompt = `${topic}`;
-  console.log('Prompt: ' + prompt);
+  console.log("Prompt: " + prompt);
   try {
     const response = await axios.post(
-      'https://api.openai.com/v1/engines/text-davinci-003/completions',
+      "https://api.openai.com/v1/engines/text-davinci-003/completions",
       {
         prompt: prompt,
         max_tokens: tokens,
       },
       {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openaiApiKey}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiApiKey}`,
         },
       }
     );
 
     res.send({ content: response.data.choices[0].text.trim() });
   } catch (error) {
-    console.error('Error:', error.response.data); // Log the error details
+    console.error("Error:", error.response.data); // Log the error details
     res.status(500).send({ error: error.message });
   }
 });
 
-
-
-app.post('/generate-poem', async (req, res) => {
+app.post("/generate-poem", async (req, res) => {
   const { topic, style, wordCount } = req.body;
 
   const prompt = `Write a poem about ${topic} in the style of ${style} with approximately ${wordCount} words. Include a title. Return the content as styled HTML.`;
@@ -113,22 +108,22 @@ app.post('/generate-poem', async (req, res) => {
 
   try {
     const response = await axios.post(
-      'https://api.openai.com/v1/engines/text-davinci-003/completions',
+      "https://api.openai.com/v1/engines/text-davinci-003/completions",
       {
         prompt: prompt,
         max_tokens: 500,
       },
       {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openaiApiKey}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiApiKey}`,
         },
       }
     );
 
     res.send({ poem: response.data.choices[0].text.trim() });
   } catch (error) {
-    console.error('Error:', error.response.data); // Log the error details
+    console.error("Error:", error.response.data); // Log the error details
     res.status(500).send({ error: error.message });
   }
 });
@@ -149,13 +144,12 @@ async function summarizeText(text) {
   return summary;
 }
 
-app.post('/generate-summary', async (req, res) => {
+app.post("/generate-summary", async (req, res) => {
   const { content } = req.body;
   console.log("Generate Summary ");
   const summary = await summarizeText(content);
   res.send({ summary: summary });
 });
-
 
 /*
 app.post('/generate-summary', async (req, res) => {
@@ -191,9 +185,8 @@ app.post('/generate-summary', async (req, res) => {
 });
 */
 
-
-app.get('/', (req, res) => {
-  res.render('index', { apiKey: process.env.TINYMCE_API_KEY });
+app.get("/", (req, res) => {
+  res.render("index", { apiKey: process.env.TINYMCE_API_KEY });
 });
 
 app.listen(port, () => {

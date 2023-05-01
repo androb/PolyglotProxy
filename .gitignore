@@ -26,3 +26,4 @@ Thumbs.db
 .replit
 .git
 __pycache__
+.prettierrc.json

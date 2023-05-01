@@ -1,81 +1,100 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChatGPT</title>
-  <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.23.0"></script>
-  <style>
-    body {
-  height: 100%;
-}
-  </style>
-</head>
-<body>
-
-  <div class="chat-container">
-    <div class="chat-body">
-      <div class="chat-messages" id="chat-messages"></div>
-      <div class="chat-controls">
-        <input type="text" class="chat-input" id="chat-input" placeholder="Type a message...">
-        <button class="chat-btn" id="chat-send-btn">Send</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatGPT</title>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.23.0"></script>
+    <style>
+      body {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-body">
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-controls">
+          <input
+            type="text"
+            class="chat-input"
+            id="chat-input"
+            placeholder="Type a message..."
+          />
+          <button class="chat-btn" id="chat-send-btn">Send</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script>
-    const chatMessages = document.querySelector('#chat-messages');
-    const chatInput = document.querySelector('#chat-input');
-    const chatSendBtn = document.querySelector('#chat-send-btn');
+    <script>
+      const chatMessages = document.querySelector("#chat-messages");
+      const chatInput = document.querySelector("#chat-input");
+      const chatSendBtn = document.querySelector("#chat-send-btn");
 
-    const addMessage = (text, sender) => {
-      const messageEl = document.createElement('div');
-      messageEl.classList.add('chat-message');
-      messageEl.classList.add(`chat-message-${sender}`);
-      messageEl.textContent = text;
-      chatMessages.appendChild(messageEl);
+      const addMessage = (text, sender) => {
+        const messageEl = document.createElement("div");
+        messageEl.classList.add("chat-message");
+        messageEl.classList.add(`chat-message-${sender}`);
+        messageEl.textContent = text;
+        chatMessages.appendChild(messageEl);
 
-      if (sender === 'bot') {
-        const insertBtn = document.createElement('button');
-        insertBtn.classList.add('chat-insert-btn');
-        insertBtn.textContent = 'Insert';
-        insertBtn.onclick = () => {
-          const editor = window.parent.tinymce.get('editor-1');
-          editor.insertContent(text);
-          window.parent.tb_remove();
+        if (sender === "bot") {
+          const insertBtn = document.createElement("button");
+          insertBtn.classList.add("chat-insert-btn");
+          insertBtn.textContent = "Insert";
+          insertBtn.onclick = () => {
+            const editor = window.parent.tinymce.activeEditor;
+            editor.insertContent(text);
+            editor.windowManager.close();
+            window.parent.tb_remove();
+          };
+          messageEl.appendChild(insertBtn);
         }
-        messageEl.appendChild(insertBtn);
-      }
-    }
-    
-    const sendMessage = async (message) => {
-      addMessage(message, 'user');
-      const response = await fetch('/chatgpt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message }),
-      });
-      const data = await response.json();
-      addMessage(data.response, 'bot');
-      chatInput.value = '';
-    }
+      };
 
-    chatSendBtn.addEventListener('click', () => {
-      const message = chatInput.value.trim();
-      if (message) {
-        sendMessage(message);
-      }
-    });
+      const sendMessage = async (message) => {
+        addMessage(message, "user");
+        // send the "block" mceAction
+        window.parent.postMessage(
+          {
+            mceAction: "block",
+            message: "Blocking from iframe",
+          },
+          origin
+        );
+        const response = await fetch("/chatgpt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        });
+        const data = await response.json();
+        addMessage(data.response, "bot");
+        chatInput.value = "";
+        // send the "unblock" mceAction
+        window.parent.postMessage(
+          {
+            mceAction: "unblock",
+          },
+          origin
+        );
+      };
 
-    chatInput.addEventListener('keyup', (event) => {
-      if (event.key === 'Enter') {
+      chatSendBtn.addEventListener("click", () => {
         const message = chatInput.value.trim();
         if (message) {
           sendMessage(message);
         }
-      }
-    });
-  </script>
+      });
 
-</body>
+      chatInput.addEventListener("keyup", (event) => {
+        if (event.key === "Enter") {
+          const message = chatInput.value.trim();
+          if (message) {
+            sendMessage(message);
+          }
+        }
+      });
+    </script>
+  </body>
 </html>

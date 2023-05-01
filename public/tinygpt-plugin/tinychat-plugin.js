@@ -1,10 +1,8 @@
+(function () {
+  var iframe = (function () {
+    "use strict";
 
-(function() {
-  var iframe = (function() {
-    'use strict';
-
-    tinymce.PluginManager.add("chatplugin", function(editor, url) {
-
+    tinymce.PluginManager.add("chatplugin", function (editor, url) {
       /*
       Used to store a reference to the dialog when we have opened it
        */
@@ -14,35 +12,36 @@
       Define configuration for the iframe
        */
       var _urlDialogConfig = {
-        title: 'Chat with AI',
-        url: 'testchat.html',
+        title: "Ask AI",
+        url: "testchat.html",
         buttons: [
           {
-            type: 'cancel',
-            name: 'cancel',
-            text: 'Close Dialog'
-          }
+            type: "cancel",
+            name: "cancel",
+            text: "Close Dialog",
+          },
         ],
-        onAction: function(instance, trigger) {
+        onAction: function (instance, trigger) {
           // do something
-          editor.windowManager.alert('onAction is running.<br /><br />You can code your own onAction handler within the plugin.');
+          editor.windowManager.alert(
+            "onAction is running.<br /><br />You can code your own onAction handler within the plugin."
+          );
 
           // close the dialog
           instance.close();
         },
         width: 600,
-        height: 300
+        height: 300,
       };
 
       // Define the Toolbar button
-      editor.ui.registry.addButton('chatplugin', {
-        text: "Open Simple URL Dialog",
-        icon: 'ai-icon',
+      editor.ui.registry.addButton("chatplugin", {
+        text: "Ask AI",
+        icon: "ai-icon",
         onAction: () => {
-          _api = editor.windowManager.openUrl(_urlDialogConfig)
-        }
+          _api = editor.windowManager.openUrl(_urlDialogConfig);
+        },
       });
-
     });
-  }());
+  })();
 })();

@@ -15,5 +15,8 @@
     "express": "^4.17.3",
     "node-fetch": "^3.3.1",
     "openai": "^3.2.1"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.8"
   }
 }
