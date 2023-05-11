@@ -1,5 +1,5 @@
 (async () => {
-  tinymce.PluginManager.add("tinygpt", function (editor) {
+  tinymce.PluginManager.add("tinygpt", function(editor) {
     // write a function to generate an image from DALL-E 2 API given a certain prompt
     async function generateImage(prompt) {
       editor.setProgressState(true);
@@ -111,11 +111,11 @@
             primary: true,
           },
         ],
-        onSubmit: async function (api) {
+        onSubmit: async function(api) {
           const data = api.getData();
           api.close();
           insertContent(
-            `Create a blog post about ${data.topic}. Write it in a ${data.tone} tone. Use transition words. Use active voice. Write ${data.wordCount} words. Add title and subtitle for each section. Keep each paragrah short. Include the following keywords: “${data.keywords}”. Use HTML to format headings, paragraphs, and lists. Use HTML to output the content.`,
+            `Create a blog post about ${data.topic}. Write it in a ${data.tone} tone. Use transition words. Use active voice. Write ${data.wordCount} words. Add title and subtitle for each section. Keep each paragrah short. Include the following keywords: “${data.keywords}”. Use HTML to format headings, paragraphs, and lists. Use HTML to output the content, but only include the content between the <body> tags.`,
             2000
           );
         },
@@ -255,7 +255,7 @@
             primary: true,
           },
         ],
-        onSubmit: async function (api) {
+        onSubmit: async function(api) {
           const data = api.getData();
           api.close();
           const imagePrompt = `${data.imageprompt} in the style of ${data.imagestyle}, ${data.imagecolors}, ${data.imageaesthetics}, 4k, high resolution, trending in artstation`;
@@ -321,7 +321,7 @@
             primary: true,
           },
         ],
-        onSubmit: async function (api) {
+        onSubmit: async function(api) {
           const data = api.getData();
           api.close();
           editor.setProgressState(true);
@@ -346,7 +346,7 @@
       {
         text: "Heading 1",
         icon: "h1",
-        action: function () {
+        action: function() {
           editor.execCommand("mceInsertContent", false, "<h1>Heading 1</h1>");
           editor.selection.select(editor.selection.getNode());
         },
@@ -354,7 +354,7 @@
       {
         text: "Heading 2",
         icon: "h2",
-        action: function () {
+        action: function() {
           editor.execCommand("mceInsertContent", false, "<h2>Heading 2</h2>");
           editor.selection.select(editor.selection.getNode());
         },
@@ -362,7 +362,7 @@
       {
         text: "Heading 3",
         icon: "h3",
-        action: function () {
+        action: function() {
           editor.execCommand("mceInsertContent", false, "<h3>Heading 3</h3>");
           editor.selection.select(editor.selection.getNode());
         },
@@ -373,21 +373,21 @@
       {
         text: "Bulleted list",
         icon: "unordered-list",
-        action: function () {
+        action: function() {
           editor.execCommand("InsertUnorderedList", false);
         },
       },
       {
         text: "Numbered list",
         icon: "ordered-list",
-        action: function () {
+        action: function() {
           editor.execCommand("InsertOrderedList", false);
         },
       },
       {
         text: "Insert Poem",
         icon: "ai-icon",
-        action: async function () {
+        action: async function() {
           editor.setProgressState(true);
           try {
             const poem = await generatePoem("TinyMCE", "Banjo Patterson", "50");
@@ -402,7 +402,7 @@
       {
         text: "Summarize",
         icon: "ai-icon",
-        action: async function () {
+        action: async function() {
           editor.setProgressState(true);
           try {
             const summary = await generateSummary(
@@ -419,7 +419,7 @@
       {
         text: "Ask AI",
         icon: "ai-icon",
-        action: async function () {
+        action: async function() {
           //editor.dispatch('contexttoolbar-show', { toolbar: 'askAI-toolbar' });
           console.log("Ask AI!");
           editor.dispatch("contexttoolbar-show", {
@@ -456,7 +456,7 @@
       type: "menuitem",
       text: "Insert Poem",
       icon: "ai-icon", // Add the custom icon
-      onAction: function (_) {
+      onAction: function(_) {
         openInsertPoemDialog();
       },
     });
@@ -486,7 +486,7 @@
     editor.ui.registry.addMenuItem("insertsummary", {
       text: "Summary",
       icon: "ai-summary", // Add the custom icon
-      onAction: async function () {
+      onAction: async function() {
         editor.setProgressState(true);
         try {
           const summary = await generateSummary(
@@ -517,7 +517,7 @@
     editor.ui.registry.addButton("summarize", {
       text: "Summarize",
       icon: "ai-summary", // Add the custom icon
-      onAction: async function () {
+      onAction: async function() {
         editor.setProgressState(true);
         try {
           const summary = await generateSummary(
@@ -537,8 +537,8 @@
       ch: "/",
       minChars: 0,
       columns: 1,
-      fetch: function (pattern) {
-        const matchedActions = insertActions.filter(function (action) {
+      fetch: function(pattern) {
+        const matchedActions = insertActions.filter(function(action) {
           return (
             action.type === "separator" ||
             action.text.toLowerCase().indexOf(pattern.toLowerCase()) !== -1
@@ -546,7 +546,7 @@
         });
 
         return new Promise((resolve) => {
-          var results = matchedActions.map(function (action) {
+          var results = matchedActions.map(function(action) {
             return {
               meta: action,
               text: action.text,
@@ -558,7 +558,7 @@
           resolve(results);
         });
       },
-      onAction: function (autocompleteApi, rng, action, meta) {
+      onAction: function(autocompleteApi, rng, action, meta) {
         editor.selection.setRng(rng);
         // Some actions don't delete the "slash", so we delete all the slash
         // command content before performing the action
@@ -575,11 +575,11 @@
         icon: "help",
       },
       label: "Ask AI",
-      predicate: function (node) {
+      predicate: function(node) {
         // return node.nodeName === 'P';
         return false;
       },
-      initValue: function () {
+      initValue: function() {
         return "";
       },
       commands: [
@@ -588,7 +588,7 @@
           icon: "unlink",
           tooltip: "Remove link",
           active: false,
-          onAction: function (formApi) {
+          onAction: function(formApi) {
             console.log("Remove link clicked");
             formApi.hide();
           },
@@ -596,7 +596,7 @@
       ],
       position: "selection",
       scope: "editor",
-      onSubmit: function (formApi, value) {
+      onSubmit: function(formApi, value) {
         console.log("Submit clicked");
         formApi.hide();
       },

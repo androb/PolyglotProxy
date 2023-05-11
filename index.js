@@ -32,7 +32,6 @@ app.set("view engine", "ejs");
 app.get("/api/image", async (req, res) => {
   const { prompt } = req.query;
   const imageURL = await generateImage(prompt);
-  //res.send(`<figure class="image"><img src="${imageURL}" alt="${prompt}" width="100%" style="height:400px;width:100%;object-fit: cover;" align="center" /><figcaption>"${prompt}" by DALL·E 2</figcaption></figure>`);
   res.send(imageURL);
 });
 
@@ -40,7 +39,7 @@ async function generateImage(promptText, size) {
   const response = await openai.createImage({
     prompt: promptText,
     n: 1,
-    size: "1024x1024",
+    size: "512x512",
   });
   const imageURL = response.data.data[0].url;
   return imageURL;
@@ -73,54 +72,44 @@ app.post("/generate-content", async (req, res) => {
   const { topic, tokens } = req.body;
   const prompt = `${topic}`;
   console.log("Prompt: " + prompt);
-  try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/engines/text-davinci-003/completions",
-      {
-        prompt: prompt,
-        max_tokens: tokens,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${openaiApiKey}`,
-        },
-      }
-    );
 
-    res.send({ content: response.data.choices[0].text.trim() });
+  try {
+    const completion = await openai.createChatCompletion({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'You are a helpful AI writing assistant. Return the answers to questions in HTML format with the appropriate heading, paragraph, and line break (<br>) tags when needed. Only return the HTML between the <body> tags.' },
+        { role: 'user', content: `${prompt}` }
+      ],
+    });
+    console.log(completion.data.choices[0].message);
+    res.send({ content: completion.data.choices[0].message.content });
   } catch (error) {
-    console.error("Error:", error.response.data); // Log the error details
+    console.error("Error:", error.message); // Log the error details
     res.status(500).send({ error: error.message });
   }
+
 });
 
 app.post("/generate-poem", async (req, res) => {
   const { topic, style, wordCount } = req.body;
 
-  const prompt = `Write a poem about ${topic} in the style of ${style} with approximately ${wordCount} words. Include a title. Return the content as styled HTML.`;
+  const prompt = `Write a poem about ${topic} in the style of ${style} with approximately ${wordCount} words. Include a title as a <h2> element. Return the content as styled HTML with line breaks as <br> tags.`;
   console.log(prompt);
-
   try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/engines/text-davinci-003/completions",
-      {
-        prompt: prompt,
-        max_tokens: 500,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${openaiApiKey}`,
-        },
-      }
-    );
-
-    res.send({ poem: response.data.choices[0].text.trim() });
+    const completion = await openai.createChatCompletion({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'You are a poet. Return the answers to questions in HTML format with the appropriate heading, paragraph, and line break (<br>) tags when needed.' },
+        { role: 'user', content: `${prompt}` }
+      ],
+    });
+    console.log(completion.data.choices[0].message);
+    res.send({ poem: completion.data.choices[0].message.content });
   } catch (error) {
-    console.error("Error:", error.response.data); // Log the error details
+    console.error("Error:", error.message); // Log the error details
     res.status(500).send({ error: error.message });
   }
+
 });
 
 // Define a function that takes some text as input and returns a summary of that text
@@ -130,7 +119,7 @@ async function summarizeText(text) {
 
   // Call the GPT-3 API to generate a summary
   const response = await openai.createCompletion({
-    model: "text-davinci-003",
+    model: "gpt-3.5-turbo",
     prompt: prompt,
     max_tokens: 200,
   });
@@ -146,39 +135,6 @@ app.post("/generate-summary", async (req, res) => {
   res.send({ summary: summary });
 });
 
-/*
-app.post('/generate-summary', async (req, res) => {
-
-  const { content } = req.body;
-
-  // Slice the content string to only take the first 3000 characters
-  const slicedContent = content.slice(0, 3000);
-
-  const prompt = `Summarize this text:  ${slicedContent}`;
-  //console.log(prompt);
-
-  try {
-    const response = await axios.post(
-      'https://api.openai.com/v1/engines/text-davinci-003/completions',
-      {
-        prompt: prompt,
-        max_tokens: 500,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openaiApiKey}`,
-        },
-      }
-    );
-    console.log(response.data.choices[0].text.trim());
-    res.send({ summary: response.data.choices[0].text.trim() });
-  } catch (error) {
-    console.error('Error:', error.response.data); // Log the error details
-    res.status(500).send({ error: error.message });
-  }
-});
-*/
 
 app.get("/", (req, res) => {
   res.render("index", { apiKey: process.env.TINYMCE_API_KEY });
