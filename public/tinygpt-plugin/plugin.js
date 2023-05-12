@@ -22,24 +22,22 @@
       return data.poem;
     }
 
-    // function to get content
+    // function to get content from our end point
     async function insertContent(topic, tokens) {
-      editor.setProgressState(true);
       try {
+        editor.setProgressState(true);
         const response = await fetch("/generate-content", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ topic, tokens }),
         });
         const data = await response.json();
-        const content = data.content;
-        //editor.insertContent(`<p>${content.replace(/\n/g, '<br>')}</p>`);
-        editor.insertContent(`${content}`);
+        editor.setProgressState(false);
+        editor.insertContent(`${data.content}`);
       } catch (error) {
         console.error(error);
         alert("Error generating content. Please try again later.");
       }
-      editor.setProgressState(false);
     }
 
     // Function to generate a summary
@@ -63,9 +61,9 @@
           type: "panel",
           items: [
             {
-              type: "input",
+              type: "textarea",
               name: "topic",
-              label: "Topic",
+              label: "Prompt",
               placeholder: "Enter the topic of your post",
             },
             {
@@ -122,6 +120,55 @@
       });
     }
 
+    // Function to prompt the user for a blog topic
+    function openInsertJobDescriptionDialog() {
+      return editor.windowManager.open({
+        title: "Insert Job Description Post",
+        body: {
+          type: "panel",
+          items: [
+            {
+              type: "textarea",
+              name: "jobtitle",
+              label: "Prompt",
+              placeholder: "Enter the job title and any important information about the job.",
+            },
+            {
+              type: "selectbox",
+              name: "industry",
+              label: "Industry",
+              items: [
+                { text: "Software", value: "Software" },
+                { text: "Healthcare", value: "Healthcare" },
+                { text: "Financial Services", value: "Financial Services" },
+                { text: "Manufacturing", value: "Manufacturing" },
+                { text: "Education", value: "Education" },
+              ],
+            },
+          ],
+        },
+        buttons: [
+          {
+            type: "cancel",
+            text: "Cancel",
+          },
+          {
+            type: "submit",
+            text: "Insert",
+            primary: true,
+          },
+        ],
+        onSubmit: async function(api) {
+          const data = api.getData();
+          api.close();
+          insertContent(
+            `Create a job description for a ${data.jobtitle} in the ${data.industry} industry. Use inclusive language and aim for a readiblity grade of 8. Do not use gender-biased other biased words. Use HTML to format headings, paragraphs, and lists. Use HTML to output the content, but only include the content between the <body> tags.`,
+            500
+          );
+        },
+      });
+    }
+
     function openInsertPhotoDialog() {
       return editor.windowManager.open({
         title: "Insert Image",
@@ -147,7 +194,7 @@
           type: "panel",
           items: [
             {
-              type: "input",
+              type: "textarea",
               name: "imageprompt",
               label: "Prompt",
               placeholder: "Enter the image prompt",
@@ -181,8 +228,6 @@
                 },
                 { text: "Digital Illustration", value: "digital illustration" },
                 { text: "Emoji", value: "emoji" },
-                { text: "Expressionism", value: "expressionism" },
-                { text: "Fauvism", value: "fauvism" },
                 { text: "Flat Art", value: "flat art" },
                 { text: "Futurism", value: "futurism" },
                 { text: "Geometric Drawing", value: "geometric drawing" },
@@ -191,21 +236,15 @@
                 { text: "Impressionism", value: "impressionism" },
                 { text: "Indigenous Art", value: "indigenous art" },
                 { text: "Line Art", value: "line art" },
-                { text: "Op Art", value: "Op Art" },
                 { text: "Paper Collage", value: "paper collage" },
                 { text: "Photorealism", value: "photorealism" },
-                {
-                  text: "Pixar style 3D render",
-                  value: "pixar style 3D render",
-                },
+                { text: "Pixar style 3D render", value: "pixar style 3D render" },
                 { text: "Pop Art", value: "pop art" },
                 { text: "Poster Art", value: "poster art" },
                 { text: "Prehistoric Art", value: "prehistoric art" },
                 { text: "Psychadelic Art", value: "psychadelic art" },
                 { text: "Realism", value: "realism" },
                 { text: "Retro", value: "retro" },
-                { text: "Rococo", value: "rococo" },
-                { text: "Romanticism", value: "romanticism" },
                 { text: "Sculpture", value: "sculpture" },
                 { text: "Surrealism", value: "surrealism" },
                 { text: "Stock Image", value: "stock image" },
@@ -262,7 +301,7 @@
           console.log(`Generating image for ${imagePrompt}`);
           const imageURL = await generateImage(imagePrompt);
           editor.insertContent(
-            `<figure class="image"><img src="${imageURL}" alt="${imagePrompt}" /><figcaption>"${imagePrompt}" by DALL·E 2</figcaption></figure>`
+            `<o><img src="${imageURL}" alt="${data.imageprompt}" /></p><p><em>${data.imageprompt} by DALL·E 2</em></p>`
           );
         },
       });
@@ -276,9 +315,9 @@
           type: "panel",
           items: [
             {
-              type: "input",
+              type: "textarea",
               name: "topic",
-              label: "Topic",
+              label: "Prompt",
               placeholder: "Enter the topic of your poem",
             },
             {
@@ -287,27 +326,16 @@
               label: "Style",
               items: [
                 { text: "Banjo Paterson", value: "Banjo Paterson" },
-                { text: "Bruce Dawe", value: "Bruce Dawe" },
-                { text: "Dorothea Mackellar", value: "Dorothea Mackellar" },
+                { text: "Bob Dylan", value: "Bob Dylan" },
+                { text: "Eminem", value: "Eminem" },
                 { text: "Gwen Harwood", value: "Gwen Harwood" },
                 { text: "Henry Lawson", value: "Henry Lawson" },
                 { text: "Judith Wright", value: "Judith Wright" },
-                { text: "Les Murray", value: "Les Murray" },
+                { text: "Paul McCartney", value: "Paul McCartney" },
                 { text: "Oodgeroo Noonuccal", value: "Oodgeroo Noonuccal" },
                 { text: "Rupert McCall", value: "Rupert McCall" },
               ],
-            },
-            {
-              type: "selectbox",
-              name: "wordCount",
-              label: "Word Count",
-              items: [
-                { text: "50", value: "50" },
-                { text: "100", value: "100" },
-                { text: "200", value: "200" },
-                { text: "500", value: "500" },
-              ],
-            },
+            }
           ],
         },
         buttons: [
@@ -329,7 +357,7 @@
             const poem = await generatePoem(
               data.topic,
               data.style,
-              data.wordCount
+              200
             );
             editor.insertContent(`${poem}`);
           } catch (error) {
@@ -444,10 +472,19 @@
       '<svg width="24" height="24" viewBox="0 0 24 24"><path d="M 8 3 C 6.9069372 3 6 3.9069372 6 5 L 6 9 L 3 9 L 3 11 L 2 11 L 2 13 L 3 13 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 13 L 22 13 L 22 11 L 21 11 L 21 9 L 18 9 L 18 5 C 18 3.9069372 17.093063 3 16 3 L 8 3 z M 8 5 L 16 5 L 16 9 L 14 9 L 14 11 L 15 11 L 15 13 L 9 13 L 9 11 L 10 11 L 10 9 L 8 9 L 8 5 z M 5 11 L 7 11 L 7 13 C 7 14.093063 7.9069372 15 9 15 L 15 15 C 16.093063 15 17 14.093063 17 13 L 17 11 L 19 11 L 19 19 L 5 19 L 5 11 z" fill="#0d152c"/></svg>'
     );
 
+
+    // POEM FEATURE
+
+    // Register a custom SVG icon
+    editor.ui.registry.addIcon(
+      "ai-poem",
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d152c"><path d="M 22 2 C 10.367 2 9.09 8.0225 9 10.1875 C 8.434 10.9765 7.90575 11.75325 7.46875 12.53125 C 7.379196 12.690457 7.3061593 12.843827 7.2207031 13 L 4 13 L 4 15 C 2.895 15 2 15.895 2 17 L 2 20 C 2 21.105 2.895 22 4 22 L 11 22 C 12.105 22 13 21.105 13 20 L 13 17 C 13 15.895 12.105 15 11 15 L 11 13 L 8.8144531 13 C 9.60723 11.625731 10.594174 10.222521 11.8125 8.90625 C 13.0465 7.69825 14.871 6.117 17 5 C 15.574 6.312 11.49975 9.977 10.34375 12 C 12.54675 12.457 16.207 11.043 18 9 C 17.582 8.953 15.578 8.496 15 8 C 16.109 8.09 18.266 8.051 19 8 C 20.043 7.125 21.375 4.328 22 2 z M 6 15 L 9 15 L 9 17 L 11 17 L 11 20 L 4 20 L 4 17 L 6 17 L 6 15 z" fill="#0d152c"/></svg>'
+    );
+
     // Register the insertpoem button
     editor.ui.registry.addButton("insertpoem", {
       text: "Insert Poem",
-      icon: "ai-icon", // Add the custom icon
+      icon: "ai-poem", // Add the custom icon
       onAction: openInsertPoemDialog,
     });
 
@@ -455,7 +492,7 @@
     editor.ui.registry.addMenuButton("menuinsertpoem", {
       type: "menuitem",
       text: "Insert Poem",
-      icon: "ai-icon", // Add the custom icon
+      icon: "ai-poem", // Add the custom icon
       onAction: function(_) {
         openInsertPoemDialog();
       },
@@ -464,9 +501,22 @@
     // Register the insert poem's menu item
     editor.ui.registry.addMenuItem("insertpoem", {
       text: "Poem",
-      icon: "ai-icon", // Add the custom icon
+      icon: "ai-poem", // Add the custom icon
       onAction: openInsertPoemDialog,
     });
+
+    // JOB DESCRIPTION FEATURE
+
+    // Register the insert job description's menu button
+    editor.ui.registry.addMenuItem("insertjobdescription", {
+      type: "menuitem",
+      text: "Job Description",
+      icon: "ai-icon", // Add the custom icon
+      onAction: function(_) {
+        openInsertJobDescriptionDialog();
+      },
+    });
+
 
     // Register the insert blog post's menu item
     editor.ui.registry.addMenuItem("insertblogpost", {
@@ -506,6 +556,161 @@
       text: "Sample Document",
       onAction: insertSampleContent,
     });
+
+    // Formalize feature
+    editor.ui.registry.addIcon(
+      "ai-formalize",
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d152c"><path d="M 9 3 L 9 4 L 4 4 C 2.895 4 2 4.895 2 6 L 2 18 C 2 19.103 2.897 20 4 20 L 20 20 C 21.103 20 22 19.103 22 18 L 22 6 C 22 4.895 21.105 4 20 4 L 15 4 L 15 3 L 9 3 z M 4 6 L 20 6 L 20 13 L 18 13 A 1 1 0 0 0 17 12 A 1 1 0 0 0 16 13 L 8 13 A 1 1 0 0 0 7 12 A 1 1 0 0 0 6 13 L 4 13 L 4 6 z M 4 15 L 20 15 L 20 18 L 4 18 L 4 15 z" fill="#0d152c"/></svg>'
+    );
+
+    // Shortcut menu item to formalize content
+    editor.ui.registry.addMenuItem("formalize", {
+      text: "Formalize",
+      icon: "ai-formalize",
+      onAction: formalize,
+    });
+
+    function formalize() {
+      // get the user's selected text, if any
+      var selectedContent = tinymce.activeEditor.selection.getContent();
+      console.log(selectedContent);
+      tinymce.activeEditor.undoManager.transact(function() {
+        insertContent(
+          `Completely reword the following content to be more formal.  If there are HTML tags in the content, add HTML tags to the new content, and keep it similar to the original HTML. Only include heading tags such as <h2> if the original content included heading tags. \n\n${selectedContent}`,
+          selectedContent.length / 3
+        );
+      });
+    }
+
+    // Shorten feature
+    editor.ui.registry.addIcon(
+      "ai-shorten",
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d152c"><path d="M 11 2 L 11 5 L 8 5 L 12 9 L 16 5 L 13 5 L 13 2 L 11 2 z M 12 9 L 3 9 L 3 11 L 21 11 L 21 9 L 12 9 z M 3 13 L 3 15 L 12 15 L 21 15 L 21 13 L 3 13 z M 12 15 L 8 19 L 11 19 L 11 22 L 13 22 L 13 19 L 16 19 L 12 15 z" fill="#0d152c"/></svg>'
+    );
+
+    // Shortcut menu item to formalize content
+    editor.ui.registry.addMenuItem("shorten", {
+      text: "Shorten",
+      icon: "ai-shorten",
+      onAction: shorten,
+    });
+
+    function shorten() {
+      // get the user's selected text, if any
+      var selectedContent = tinymce.activeEditor.selection.getContent();
+      console.log(selectedContent);
+      tinymce.activeEditor.undoManager.transact(function() {
+        insertContent(
+          `Rewrite the following content to be shorter. If there are HTML tags in the content, add HTML tags to the new content, and keep it similar to the original HTML. Only include heading tags such as <h2> if the original content included heading tags. \n\n${selectedContent}`,
+          selectedContent.length / 3
+        );
+      });
+    }
+
+    // Expand feature
+    editor.ui.registry.addIcon(
+      "ai-expand",
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d152c"><path d="M 12 2 L 9 5 L 15 5 L 12 2 z M 3 7 L 3 9 L 21 9 L 21 7 L 3 7 z M 3 11 L 3 13 L 21 13 L 21 11 L 3 11 z M 3 15 L 3 17 L 21 17 L 21 15 L 3 15 z M 9 19 L 12 22 L 15 19 L 9 19 z" fill="#0d152c"/></svg>'
+    );
+
+    // Shortcut menu item to expand the content
+    editor.ui.registry.addMenuItem("expand", {
+      text: "Expand",
+      icon: "ai-expand",
+      onAction: expand,
+    });
+
+    function expand() {
+      // get the user's selected text, if any
+      var selectedContent = tinymce.activeEditor.selection.getContent();
+      console.log(selectedContent);
+      tinymce.activeEditor.undoManager.transact(function() {
+        insertContent(
+          `Rewrite the following content to be longer.  If there are HTML tags in the content, add HTML tags to the new content, and keep it similar to the original HTML. Only include heading tags such as <h2> if the original content included heading tags. \n\n${selectedContent}`,
+          selectedContent.length / 3
+        );
+      });
+    }
+
+
+    // Rephrase feature
+
+    editor.ui.registry.addIcon(
+      "ai-rephrase",
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d152c"><path d="M 5 3 C 3.895 3 3 3.895 3 5 L 3 19 C 3 20.105 3.895 21 5 21 L 16.171875 21 L 14.171875 19 L 5 19 L 5 5 L 19 5 L 19 14.171875 L 21 16.171875 L 21 5 C 21 3.895 20.105 3 19 3 L 5 3 z M 7 7 L 7 9 L 17 9 L 17 7 L 7 7 z M 7 11 L 7 13 L 12 13 L 12 11 L 7 11 z M 15 15 L 15 17 L 20.146484 22.146484 L 22.146484 20.146484 L 17 15 L 15 15 z M 22.853516 20.853516 L 20.853516 22.853516 L 21.853516 23.853516 C 22.048516 24.048516 22.365547 24.048516 22.560547 23.853516 L 23.853516 22.560547 C 24.048516 22.364547 24.048516 22.048516 23.853516 21.853516 L 22.853516 20.853516 z" fill="#0d152c"/></svg>'
+    );
+
+    // Shortcut menu item to rephrase content
+    editor.ui.registry.addMenuItem("rephrase", {
+      text: "Rephrase",
+      icon: "ai-rephrase",
+      onAction: rephrase,
+    });
+
+    function rephrase() {
+      // get the user's selected text, if any
+      var selectedContent = tinymce.activeEditor.selection.getContent();
+      console.log(selectedContent);
+      tinymce.activeEditor.undoManager.transact(function() {
+        insertContent(
+          `Completely reword the following content. If there are HTML tags in the content, add HTML tags to the new content, and keep it similar to the original HTML. Only include heading tags such as <h2> if the original content included heading tags. \n\n${selectedContent}`,
+          selectedContent.length / 5
+        );
+      });
+    }
+
+
+    // Translate feature
+
+    editor.ui.registry.addIcon(
+      "ai-translate",
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d152c"><path d="M 5 3 C 4.4777778 3 3.9453899 3.1913289 3.5683594 3.5683594 C 3.1913289 3.9453899 3 4.4777778 3 5 L 3 14 C 3 14.522222 3.1913289 15.05461 3.5683594 15.431641 C 3.9453899 15.808671 4.4777778 16 5 16 L 8 16 L 8 19 C 8 20.1 8.9 21 10 21 L 19 21 C 20.1 21 21 20.1 21 19 L 21 10 C 21 8.9 20.1 8 19 8 L 16 8 L 16 5 C 16 4.4777778 15.808671 3.9453899 15.431641 3.5683594 C 15.05461 3.1913289 14.522222 3 14 3 L 5 3 z M 20 3 L 18 5 L 20 7 L 20 3 z M 5 5 L 14 5 L 14 9 L 11 12 L 9 14 L 5 14 L 5 5 z M 11 12 L 11 11 C 10.724607 11 10.470976 10.974116 10.230469 10.933594 C 10.240464 10.926245 10.251769 10.92149 10.261719 10.914062 C 11.136726 10.260889 11.82349 9.2689736 11.96875 8 L 12 8 L 12 7.5 L 12 7 L 10 7 L 10 6 L 9 6 L 9 7 L 7 7 L 7 8 L 10.960938 8 C 10.829049 8.9270716 10.33606 9.6096966 9.6640625 10.111328 C 9.4647364 10.260121 9.2495926 10.390192 9.0253906 10.501953 C 8.3652679 10.106834 8 9.5371456 8 9 L 7 9 C 7 9.7194444 7.3357501 10.370308 7.8867188 10.886719 C 7.5801847 10.952772 7.2781426 11 7 11 L 7 12 C 7.6397853 12 8.328822 11.856535 8.9941406 11.595703 C 9.5784432 11.845526 10.252933 12 11 12 z M 14.099609 11.099609 L 15.400391 11.099609 L 17.900391 17.800781 L 16.400391 17.800781 L 16 16.400391 L 13.599609 16.400391 L 13.099609 17.800781 L 11.599609 17.800781 L 14.099609 11.099609 z M 14.800781 12.800781 L 13.900391 15.300781 L 15.599609 15.300781 L 14.800781 12.800781 z M 4 17 L 4 21 L 6 19 L 4 17 z" fill="#0d152c"/></svg>'
+    );
+
+    // Shortcut menu item to translate content
+    editor.ui.registry.addMenuItem("translate", {
+      text: "Translate to Spanish",
+      icon: "ai-translate",
+      onAction: translate,
+    });
+
+    function translate() {
+      // get the user's selected text, if any
+      var selectedContent = tinymce.activeEditor.selection.getContent();
+      console.log(selectedContent);
+      tinymce.activeEditor.undoManager.transact(function() {
+        insertContent(
+          `Translate the following content into Spanish. If there are HTML tags in the content, add HTML tags to the new content, and keep it similar to the original HTML. Only include heading tags such as <h2> if the original content included heading tags. \n\n${selectedContent}`,
+          selectedContent.length / 5
+        );
+      });
+    }
+
+    // Fix spelling and grammar
+
+    editor.ui.registry.addIcon(
+      "ai-fix",
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d152c"><path d="M 20.292969 5.2929688 L 9 16.585938 L 4.7070312 12.292969 L 3.2929688 13.707031 L 9 19.414062 L 21.707031 6.7070312 L 20.292969 5.2929688 z" fill="#0d152c"/></svg>'
+    );
+
+    // Shortcut menu item to fix spelling and grammar content
+    editor.ui.registry.addMenuItem("fix", {
+      text: "Fix Spelling & Grammar",
+      icon: "ai-fix",
+      onAction: fix,
+    });
+
+    function fix() {
+      // get the user's selected text, if any
+      var selectedContent = tinymce.activeEditor.selection.getContent();
+      console.log(selectedContent);
+      tinymce.activeEditor.undoManager.transact(function() {
+        insertContent(
+          `Fix spelling and grammar in the following content. If there are HTML tags in the content, add HTML tags to the new content, and keep it similar to the original HTML. Only include heading tags such as <h2> if the original content included heading tags. \n\n${selectedContent}`,
+          selectedContent.length / 5
+        );
+      });
+    }
 
     function insertSampleContent() {
       editor.insertContent(

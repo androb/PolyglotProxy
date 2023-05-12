@@ -39,7 +39,7 @@ async function generateImage(promptText, size) {
   const response = await openai.createImage({
     prompt: promptText,
     n: 1,
-    size: "512x512",
+    size: "1024x1024",
   });
   const imageURL = response.data.data[0].url;
   return imageURL;
@@ -77,7 +77,7 @@ app.post("/generate-content", async (req, res) => {
     const completion = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [
-        { role: 'system', content: 'You are a helpful AI writing assistant. Return the answers to questions in HTML format with the appropriate heading, paragraph, and line break (<br>) tags when needed. Only return the HTML between the <body> tags.' },
+        { role: 'system', content: 'You are a helpful AI writing assistant. Return the answers to questions in HTML format with heading, paragraph, and line break (<br>) tags when needed. Only return the HTML between the <body> tags. Do not include headings unless the original content included headings.' },
         { role: 'user', content: `${prompt}` }
       ],
     });
@@ -117,11 +117,25 @@ async function summarizeText(text) {
   // Define the prompt to provide the GPT-3 API
   const prompt = `Summarize the following text in 50 words and start the summary with "Summary:": ${text}`;
 
+  try {
+    const completion = await openai.createChatCompletion({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'You are an AI assistand for summarizing text. Return the answers to questions in HTML format with the appropriate heading, paragraph, and line break (<br>) tags when needed.' },
+        { role: 'user', content: `${prompt}` }
+      ],
+    });
+    console.log(completion.data.choices[0].message);
+    res.send({ summary: completion.data.choices[0].message.content });
+  } catch (error) {
+    console.error("Error:", error.message); // Log the error details
+    res.status(500).send({ error: error.message });
+  }
+
   // Call the GPT-3 API to generate a summary
   const response = await openai.createCompletion({
     model: "gpt-3.5-turbo",
-    prompt: prompt,
-    max_tokens: 200,
+    prompt: prompt
   });
   // Extract the summary from the API response and return it
   const summary = response.data.choices[0].text.trim();
@@ -130,9 +144,23 @@ async function summarizeText(text) {
 
 app.post("/generate-summary", async (req, res) => {
   const { content } = req.body;
-  console.log("Generate Summary ");
-  const summary = await summarizeText(content);
-  res.send({ summary: summary });
+  // Define the prompt to provide the GPT-3 API
+  const prompt = `Summarize the following text in 50 words and start the summary with "Summary:": ${content}`;
+
+  try {
+    const completion = await openai.createChatCompletion({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'You are an AI assistand for summarizing text. Return the answers to questions in HTML format with the appropriate heading, paragraph, and line break (<br>) tags when needed.' },
+        { role: 'user', content: `${prompt}` }
+      ],
+    });
+    console.log(completion.data.choices[0].message);
+    res.send({ summary: completion.data.choices[0].message.content });
+  } catch (error) {
+    console.error("Error:", error.message); // Log the error details
+    res.status(500).send({ error: error.message });
+  }
 });
 
 
