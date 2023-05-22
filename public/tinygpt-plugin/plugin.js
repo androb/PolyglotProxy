@@ -162,7 +162,7 @@
           const data = api.getData();
           api.close();
           insertContent(
-            `Create a job description for a ${data.jobtitle} in the ${data.industry} industry. Use inclusive language and aim for a readiblity grade of 8. Do not use gender-biased other biased words. Use HTML to format headings, paragraphs, and lists. Use HTML to output the content, but only include the content between the <body> tags.`,
+            `Create a job description for a ${data.jobtitle} in the ${data.industry} industry. Use inclusive language and aim for a readiblity grade of 8. Do not use gender-biased or other biased words. Use HTML to format headings, paragraphs, and lists. Use HTML to output the content, but only include the content between the <body> tags.`,
             500
           );
         },

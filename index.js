@@ -1,3 +1,4 @@
+const { getUserInfo } = require("@replit/repl-auth")
 const express = require("express");
 const cors = require("cors"); // Import the cors package
 const bodyParser = require("body-parser");
@@ -7,6 +8,7 @@ const app = express();
 const port = 3002;
 require("dotenv").config();
 const openaiApiKey = process.env.OPENAI_API_KEY;
+
 
 const { Configuration, OpenAIApi } = require("openai");
 

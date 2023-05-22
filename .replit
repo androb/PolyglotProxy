@@ -89,3 +89,7 @@ start = "typescript-language-server --stdio"
 run = ["sh", "-c", "npm start"]
 ignorePorts = false
 deploymentTarget = "gce"
+
+[auth]
+pageEnabled = true
+buttonEnabled = false
